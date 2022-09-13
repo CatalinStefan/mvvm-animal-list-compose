@@ -10,7 +10,10 @@ import com.catalin.mvvmanimalslist.api.AnimalService
 import com.catalin.mvvmanimalslist.model.Animal
 import kotlinx.android.synthetic.main.animal_item.view.*
 
-class AnimalListAdapter(private val animals: ArrayList<Animal>) :
+class AnimalListAdapter(
+    private val animals: ArrayList<Animal>,
+    private val clickCallback: (animal: Animal) -> Unit
+) :
     RecyclerView.Adapter<AnimalListAdapter.DataViewHolder>() {
 
     fun newAnimals(newAnimals: List<Animal>) {
@@ -19,7 +22,8 @@ class AnimalListAdapter(private val animals: ArrayList<Animal>) :
         notifyDataSetChanged()
     }
 
-    class DataViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    class DataViewHolder(itemView: View, private val clickCallback: (animal: Animal) -> Unit) :
+        RecyclerView.ViewHolder(itemView) {
         fun bind(animal: Animal) {
             itemView.animalName.text = animal.name
             itemView.animalLocation.text = animal.location
@@ -27,6 +31,9 @@ class AnimalListAdapter(private val animals: ArrayList<Animal>) :
             Glide.with(itemView.animalImage.context)
                 .load(url)
                 .into(itemView.animalImage)
+            itemView.animalItem.setOnClickListener {
+                clickCallback(animal)
+            }
         }
     }
 
@@ -34,7 +41,8 @@ class AnimalListAdapter(private val animals: ArrayList<Animal>) :
         DataViewHolder(
             LayoutInflater.from(parent.context).inflate(
                 R.layout.animal_item, parent, false
-            )
+            ),
+            clickCallback
         )
 
     override fun onBindViewHolder(holder: DataViewHolder, position: Int) {

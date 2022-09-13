@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">MVVMAnimalsList</string>
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="btn_fetch_animals">Fetch animals</string>
+    <string name="detail_location">Location: %1s</string>
+    <string name="detail_lifespan">Lifespan: %1s</string>
+    <string name="detail_diet">Diet: %1s</string>
 </resources>
