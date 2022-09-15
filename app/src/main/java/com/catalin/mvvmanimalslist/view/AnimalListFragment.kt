@@ -13,9 +13,9 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.catalin.mvvmanimalslist.R
 import com.catalin.mvvmanimalslist.api.NetworkResult
+import com.catalin.mvvmanimalslist.databinding.FragmentAnimalListBinding
 import com.catalin.mvvmanimalslist.model.Animal
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.android.synthetic.main.fragment_animal_list.*
 
 @AndroidEntryPoint
 class AnimalListFragment : Fragment() {
@@ -31,48 +31,54 @@ class AnimalListFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        return inflater.inflate(R.layout.fragment_animal_list, container, false)
+        val binding = FragmentAnimalListBinding.inflate(inflater, container, false)
+        context ?: return binding.root
+
+        setupUI(binding)
+        setupObservables(binding)
+
+        return binding.root
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-
-        setupUI()
-        setupObservables()
-    }
-
-    private fun setupUI() {
-        recyclerView.layoutManager = LinearLayoutManager(this.context)
-        recyclerView.run {
+    private fun setupUI(binding: FragmentAnimalListBinding) {
+        binding.recyclerView.layoutManager = LinearLayoutManager(this.context)
+        binding.recyclerView.run {
             addItemDecoration(
                 DividerItemDecoration(
-                    recyclerView.context,
-                    (recyclerView.layoutManager as LinearLayoutManager).orientation
+                    binding.recyclerView.context,
+                    (binding.recyclerView.layoutManager as LinearLayoutManager).orientation
                 )
             )
         }
-        recyclerView.adapter = adapter
-        buttonFetchAnimals.setOnClickListener {
+        binding.recyclerView.adapter = adapter
+        binding.buttonFetchAnimals.setOnClickListener {
             mainViewModel.getAnimals()
         }
     }
 
-    private fun setupObservables() {
+    private fun setupObservables(binding: FragmentAnimalListBinding) {
         mainViewModel.result.observe(viewLifecycleOwner) { result ->
             when (result) {
+                is NetworkResult.Initial -> {
+                    binding.buttonFetchAnimals.visibility = View.VISIBLE
+                    binding.progressBar.visibility = View.GONE
+                    binding.recyclerView.visibility = View.GONE
+                }
                 is NetworkResult.Loading -> {
-                    buttonFetchAnimals.visibility = View.GONE
-                    progressBar.visibility = View.VISIBLE
+                    binding.buttonFetchAnimals.visibility = View.GONE
+                    binding.progressBar.visibility = View.VISIBLE
+                    binding.recyclerView.visibility = View.GONE
                 }
                 is NetworkResult.Error -> {
-                    progressBar.visibility = View.GONE
-                    buttonFetchAnimals.visibility = View.GONE
+                    binding.progressBar.visibility = View.GONE
+                    binding.buttonFetchAnimals.visibility = View.VISIBLE
+                    binding.recyclerView.visibility = View.GONE
                     Toast.makeText(this.context, result.message, Toast.LENGTH_SHORT).show()
                 }
                 is NetworkResult.Success -> {
-                    progressBar.visibility = View.GONE
-                    buttonFetchAnimals.visibility = View.GONE
-                    recyclerView.visibility = View.VISIBLE
+                    binding.progressBar.visibility = View.GONE
+                    binding.buttonFetchAnimals.visibility = View.GONE
+                    binding.recyclerView.visibility = View.VISIBLE
                     result.data?.let {
                         adapter.newAnimals(it)
                     }

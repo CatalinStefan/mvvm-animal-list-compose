@@ -16,6 +16,10 @@ class MainViewModel @Inject constructor(private val repo: AnimalRepo) : ViewMode
 
     val result = MutableLiveData<NetworkResult<List<Animal>>>()
 
+    init {
+        result.value = NetworkResult.Initial()
+    }
+
     fun getAnimals() {
         result.value = NetworkResult.Loading()
         repo.getAnimals()
